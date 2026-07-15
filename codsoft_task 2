@@ -1,0 +1,118 @@
+import math
+
+# Initializing game components
+BOARD_EMPTY = " "
+PLAYER_HUMAN = "X"
+PLAYER_AI = "O"
+
+
+def print_board(board):
+    for row in [board[i * 3 : (i + 1) * 3] for i in range(3)]:
+        print("| " + " | ".join(row) + " |")
+
+
+def check_winner(board, player):
+    win_conditions = [
+        [0, 1, 2],
+        [3, 4, 5],
+        [6, 7, 8],  # Rows
+        [0, 3, 6],
+        [1, 4, 7],
+        [2, 5, 8],  # Columns
+        [0, 4, 8],
+        [2, 4, 6],  # Diagonals
+    ]
+    return any(all(board[cell] == player for cell in cond) for cond in win_conditions)
+
+
+def is_board_full(board):
+    return BOARD_EMPTY not in board
+
+
+# --- Minimax Algorithm core logic ---
+def minimax(board, depth, is_maximizing):
+    if check_winner(board, PLAYER_AI):
+        return 1
+    if check_winner(board, PLAYER_HUMAN):
+        return -1
+    if is_board_full(board):
+        return 0
+
+    if is_maximizing:
+        best_score = -math.inf
+        for i in range(9):
+            if board[i] == BOARD_EMPTY:
+                board[i] = PLAYER_AI
+                score = minimax(board, depth + 1, False)
+                board[i] = BOARD_EMPTY
+                best_score = max(score, best_score)
+        return best_score
+    else:
+        best_score = math.inf
+        for i in range(9):
+            if board[i] == BOARD_EMPTY:
+                board[i] = PLAYER_HUMAN
+                score = minimax(board, depth + 1, True)
+                board[i] = BOARD_EMPTY
+                best_score = min(score, best_score)
+        return best_score
+
+
+def find_best_move(board):
+    best_score = -math.inf
+    move = -1
+    for i in range(9):
+        if board[i] == BOARD_EMPTY:
+            board[i] = PLAYER_AI
+            move_score = minimax(board, 0, False)
+            board[i] = BOARD_EMPTY
+            if move_score > best_score:
+                best_score = move_score
+                move = i
+    return move
+
+
+# --- Main Game Loop ---
+def play_game():
+    board = [BOARD_EMPTY] * 9
+    print("🎮 Welcome to Unbeatable Tic-Tac-Toe AI!")
+    print_board([str(i) for i in range(9)])  # Show index mapping
+    print("-" * 15)
+
+    while True:
+        # Human Turn
+        try:
+            human_move = int(input("Enter position (0-8): "))
+            if board[human_move] != BOARD_EMPTY:
+                print("Position already taken! Try again.")
+                continue
+        except (ValueError, IndexError):
+            print("Invalid input. Enter a number between 0 and 8.")
+            continue
+
+        board[human_move] = PLAYER_HUMAN
+        print_board(board)
+
+        if check_winner(board, PLAYER_HUMAN):
+            print("🎉 Amazing! You beat the AI! (Unlikely)")
+            break
+        if is_board_full(board):
+            print("🤝 It's a Draw!")
+            break
+
+        # AI Turn
+        print("\n🤖 AI is thinking...")
+        ai_move = find_best_move(board)
+        board[ai_move] = PLAYER_AI
+        print_board(board)
+
+        if check_winner(board, PLAYER_AI):
+            print("🤖 AI Wins! Better luck next time.")
+            break
+        if is_board_full(board):
+            print("🤝 It's a Draw!")
+            break
+
+
+if __name__ == "__main__":
+    play_game()
