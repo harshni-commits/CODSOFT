@@ -1,0 +1,47 @@
+import pandas as pd
+from sklearn.feature_extraction.text import TfidfVectorizer
+from sklearn.metrics.pairwise import cosine_similarity
+
+# Structured mock dataset with broader items
+data = {
+    "movie_id": [1, 2, 3, 4, 5],
+    "title": [
+        "The Dark Knight",
+        "Interstellar",
+        "Inception",
+        "The Conjuring",
+        "Insidious",
+    ],
+    "metadata": [
+        "action thriller superhero dc batman dark gritty gotham",
+        "sci-fi space exploration time travel gravity physics planets space",
+        "sci-fi thriller dreams layered heist mind-bending space time nolan",
+        "horror supernatural ghosts haunted house horror possession scary james wan",
+        "horror supernatural demons astral projection haunted family scary",
+    ],
+}
+df = pd.DataFrame(data)
+
+# Vectorization & Model compute
+tfidf = TfidfVectorizer(stop_words="english")
+tfidf_matrix = tfidf.fit_transform(df["metadata"])
+similarity_matrix = cosine_similarity(tfidf_matrix)
+
+
+def recommend_movies(movie_name, top_n=2):
+    try:
+        idx = df[df["title"].str.lower() == movie_name.lower()].index[0]
+        distances = similarity_matrix[idx]
+        sorted_indices = sorted(
+            list(enumerate(distances)), key=lambda x: x[1], reverse=True
+        )[1 : top_n + 1]
+
+        print(f"\n🎬 Because you liked '{movie_name}':")
+        for i in sorted_indices:
+            print(f"👉 Recommended: {df['title'].iloc[i[0]]}")
+    except IndexError:
+        print(f"\n❌ Movie '{movie_name}' not found in database.")
+
+
+# Run recommendation
+recommend_movies("Inception")
