@@ -1,0 +1,41 @@
+import re
+
+
+def rule_based_chatbot(user_input):
+    # Standardize input to lowercase
+    user_input = user_input.lower().strip()
+
+    # Rule 1: Greetings
+    if re.search(r"\b(hi|hello|hey|hola)\b", user_input):
+        return "Hello! I am your AI Assistant. How can I help you today?"
+
+    # Rule 2: Asking about well-being
+    elif re.search(r"\b(how are you|how\'s it going)\b", user_input):
+        return "I'm doing great, thank you for asking! Optimizing my systems. How about you?"
+
+    # Rule 3: Name / Identity
+    elif re.search(r"\b(what is your name|who are you)\b", user_input):
+        return "I am a Rule-Based AI Chatbot created for my CodSoft Internship task."
+
+    # Rule 4: Project/Internship query
+    elif re.search(r"\b(project|internship|tasks)\b", user_input):
+        return "This internship requires completing at least 3 tasks and pushing them to GitHub!"
+
+    # Rule 5: Farewell
+    elif re.search(r"\b(bye|goodbye|exit|see you)\b", user_input):
+        return "Goodbye! Have a fantastic day ahead! Happy coding!"
+
+    # Default Rule: Fallback response
+    else:
+        return "I'm sorry, I might not have a rule configured for that yet. Can you try asking something else?"
+
+
+
+print("🤖 Chatbot: Booting up... Type 'bye' to exit the chat.")
+while True:
+    user_msg = input("👤 You: ")
+    response = rule_based_chatbot(user_msg)
+    print(f"🤖 Chatbot: {response}")
+
+    if re.search(r"\b(bye|goodbye|exit)\b", user_msg.lower()):
+        break
